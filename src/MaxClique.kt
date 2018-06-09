@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
 
     maximalCliques.forEachIndexed { index, hashSet ->
         println("===============")
-        println("| Clique: ${index+1}")
+        println("| Clique: ${index + 1}")
         println("| Size: ${hashSet.size}")
         println("| Nodes:")
         hashSet.forEach { println("| - ${it.id}") }
@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
 }
 
 class MaxClique {
-    private val graph = Graph.getSecondGraph()
+    private val graph = Graph.getFirstGraph()
     private val cliques = mutableSetOf<HashSet<Node>>()
 
     fun allMaximalCliques(): MutableSet<HashSet<Node>> {
@@ -44,69 +44,47 @@ class MaxClique {
         alreadyFound: MutableList<Node>
     ) {
         val candidatesArray = ArrayList(candidates)
-        if (!end(candidates, alreadyFound)) {
-            // for each candidate_node in candidates do
+        // for each candidateNode in candidates do
+        for (candidate in candidatesArray) {
+            val newCandidates = ArrayList<Node>()
+            val newAlreadyFound = ArrayList<Node>()
 
-            for (candidate in candidatesArray) {
-                val newCandidates = ArrayList<Node>()
-                val newAlreadyFound = ArrayList<Node>()
+            potentialClique.add(candidate)
+            candidates.remove(candidate)
 
-                // move candidate node to potential_clique
-                potentialClique.add(candidate)
-                candidates.remove(candidate)
-
-                // create new_candidates by removing nodes in candidates not
-                // connected to candidate node
-                for (newCandidate in candidates) {
-                    if (graph.isNeighbor(candidate, newCandidate)) {
-                        newCandidates.add(newCandidate)
-                    }
+            // create newCandidates by removing nodes in candidates not
+            // connected to candidate node
+            for (newCandidate in candidates) {
+                if (graph.isNeighbor(candidate, newCandidate)) {
+                    newCandidates.add(newCandidate)
                 }
-
-                // create new_already_found by removing nodes in already_found
-                // not connected to candidate node
-                for (newFound in alreadyFound) {
-                    if (graph.isNeighbor(candidate, newFound)) {
-                        newAlreadyFound.add(newFound)
-                    }
-                }
-
-                // if new_candidates and new_already_found are empty
-                if (newCandidates.isEmpty() && newAlreadyFound.isEmpty()) {
-                    // potential_clique is maximal_clique
-                    cliques.add(HashSet(potentialClique))
-                } // of if
-                else {
-                    // recursive call
-                    findCliques(
-                        potentialClique,
-                        newCandidates,
-                        newAlreadyFound
-                    )
-                }
-
-                // move candidate_node from potential_clique to already_found;
-                alreadyFound.add(candidate)
-                potentialClique.remove(candidate)
             }
+
+            // create newAlreadyFound by removing nodes in alreadyFound
+            // not connected to candidate node
+            for (newFound in alreadyFound) {
+                if (graph.isNeighbor(candidate, newFound)) {
+                    newAlreadyFound.add(newFound)
+                }
+            }
+
+            // if newCandidates and newAlreadyFound are empty
+            if (newCandidates.isEmpty() && newAlreadyFound.isEmpty()) {
+                // potentialClique is maximalClique
+                cliques.add(HashSet(potentialClique))
+            } else {
+                // recursive call
+                findCliques(
+                    potentialClique,
+                    newCandidates,
+                    newAlreadyFound
+                )
+            }
+
+            // move candidateNode from potential_clique to alreadyFound;
+            alreadyFound.add(candidate)
+            potentialClique.remove(candidate)
         }
-    }
-
-    private fun end(candidates: List<Node>, alreadyFound: List<Node>): Boolean {
-        var end = false
-        var edgeCounter: Int
-        for (found in alreadyFound) {
-            edgeCounter = 0
-            for (candidate in candidates) {
-                if (graph.isNeighbor(found, candidate)) {
-                    edgeCounter++
-                }
-            }
-            if (edgeCounter == candidates.size) {
-                end = true
-            }
-        }
-        return end
     }
 }
 
