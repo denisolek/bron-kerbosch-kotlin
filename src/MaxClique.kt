@@ -44,47 +44,72 @@ class MaxClique {
         alreadyFound: MutableList<Node>
     ) {
         val candidatesArray = ArrayList(candidates)
-        // for each candidateNode in candidates do
         for (candidate in candidatesArray) {
             val newCandidates = ArrayList<Node>()
             val newAlreadyFound = ArrayList<Node>()
 
-            potentialClique.add(candidate)
-            candidates.remove(candidate)
+            makeCandidatePotential(potentialClique, candidate, candidates)
+            createNewCandidates(candidates, candidate, newCandidates)
+            createNewAlreadyFound(alreadyFound, candidate, newAlreadyFound)
 
-            // create newCandidates by removing nodes in candidates not
-            // connected to candidate node
-            for (newCandidate in candidates) {
-                if (graph.isNeighbor(candidate, newCandidate)) {
-                    newCandidates.add(newCandidate)
-                }
-            }
-
-            // create newAlreadyFound by removing nodes in alreadyFound
-            // not connected to candidate node
-            for (newFound in alreadyFound) {
-                if (graph.isNeighbor(candidate, newFound)) {
-                    newAlreadyFound.add(newFound)
-                }
-            }
-
-            // if newCandidates and newAlreadyFound are empty
-            if (newCandidates.isEmpty() && newAlreadyFound.isEmpty()) {
-                // potentialClique is maximalClique
+            if (isMaximalCliqueFound(newCandidates, newAlreadyFound)) {
                 cliques.add(HashSet(potentialClique))
             } else {
-                // recursive call
                 findCliques(
                     potentialClique,
                     newCandidates,
                     newAlreadyFound
                 )
             }
-
-            // move candidateNode from potential_clique to alreadyFound;
             alreadyFound.add(candidate)
             potentialClique.remove(candidate)
         }
+    }
+
+    private fun isMaximalCliqueFound(
+        newCandidates: ArrayList<Node>,
+        newAlreadyFound: ArrayList<Node>
+    ) = newCandidates.isEmpty() && newAlreadyFound.isEmpty()
+
+    /**
+     * Removing nodes in candidates not connected to candidate node
+     * to create newCandidates
+     */
+    private fun createNewCandidates(
+        candidates: MutableList<Node>,
+        candidate: Node,
+        newCandidates: ArrayList<Node>
+    ) {
+        for (newCandidate in candidates) {
+            if (graph.isNeighbor(candidate, newCandidate)) {
+                newCandidates.add(newCandidate)
+            }
+        }
+    }
+
+    /**
+     * Removing nodes in alreadyFound not connected to candidate node
+     * to create newAlreadyFound
+     */
+    private fun createNewAlreadyFound(
+        alreadyFound: MutableList<Node>,
+        candidate: Node,
+        newAlreadyFound: ArrayList<Node>
+    ) {
+        for (newFound in alreadyFound) {
+            if (graph.isNeighbor(candidate, newFound)) {
+                newAlreadyFound.add(newFound)
+            }
+        }
+    }
+
+    private fun makeCandidatePotential(
+        potentialClique: MutableList<Node>,
+        candidate: Node,
+        candidates: MutableList<Node>
+    ) {
+        potentialClique.add(candidate)
+        candidates.remove(candidate)
     }
 }
 
